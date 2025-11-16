@@ -62,6 +62,14 @@ public:
 	int R() const {return r;}
 	void SetX(int newX) { x0 = newX; }
 	void SetY(int newY) { y0 = newY; }
+
+	bool HitTest(int mx, int my) override
+	{
+		int cx = x0 + r / 2, cy = y0 + r / 2;
+		int dx = mx - cx, dy = my - cy;
+		return dx * dx + dy * dy <= (r / 2) * (r / 2);
+	}
+
 	~Dot()
 	{
 

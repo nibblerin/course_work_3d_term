@@ -10,5 +10,11 @@ public:
 	virtual void Erase(HDC hdc, COLORREF bgColor) = 0;
 	virtual void Set_Colour(unsigned char r, unsigned char g, unsigned char b) = 0;
 	virtual void SetRadius(int newR) = 0;
+	virtual bool HitTest(int mx, int my) = 0;
+	virtual int X() const = 0;
+	virtual int Y() const = 0;
+	virtual int R() const = 0;
+	virtual void SetX(int newX) = 0;
+	virtual void SetY(int newY) = 0;
 	virtual ~Figure() {};
 };

@@ -5,6 +5,9 @@
 #include "course_work.h"
 #include "circ_func.h"
 #include "dot.h"
+#include "stack.h"
+#include <vector>
+#include <windowsx.h>
 
 #define MAX_LOADSTRING 100
 
@@ -125,8 +128,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static Dot d, d2;
-    static ElipseWithText e, e2;
+    //static Dot d, d2;
+    //static ElipseWithText e, фe2;
+    static vector<Figure*> figures;
+    static Figure* selected = nullptr;
+
 
     switch (message)
     {
@@ -149,11 +155,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_CREATE:
     {
-        e.Set_Colour(0, 255, 0);
-        e.SetRadius(126);
-        e.SetX(50);    // НАЧАЛЬНАЯ ПОЗИЦИЯ
-        e.SetY(100);   // ОТКУДА НАЧИНАЕТСЯ ДВИЖЕНИЕ
-        return 0;
+        //e.Set_Colour(0, 255, 0);
+        //e.SetRadius(126);
+        //e.SetX(50);    // НАЧАЛЬНАЯ ПОЗИЦИЯ
+        //e.SetY(100);   // ОТКУДА НАЧИНАЕТСЯ ДВИЖЕНИЕ
+        figures.push_back(new ElipseWithText(L"Hello World!"));
+        figures.push_back(new Dot());
+        figures.push_back(new Dot());
+        figures.push_back(new ElipseWithText(L"Проверка на нормальный перенос текста!"));
+
+        figures[0] -> SetRadius(50);
+        figures[0] -> Set_Colour(100,40,70);        
+        figures[1] -> SetRadius(130);
+        figures[1] -> Set_Colour(59,140,200);
+        figures[1] -> SetY(59);        
+        figures[2] -> SetRadius(80);
+        figures[2] -> Set_Colour(59,40,20);
+        figures[2] -> SetY(99);
+        figures[2] -> SetX(160);
+        figures[3]->SetRadius(130);
+        figures[3]->Set_Colour(109, 40, 200);
+        figures[3]->SetY(59);
+        selected = figures[0];
+        break;
     }
     case WM_PAINT:
         {
@@ -173,9 +197,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //e2.Set_Colour(0, 255, 0);
             //e2.Draw(hdc, 89, 190, 121);
             //e2.Erase(hdc);
-            e.SetText(L"Это пример многострочного текста,который автоматически переносится");
-            e.Draw(hdc, e.X(), e.Y(), e.R()); // рисуем текущую позицию
+            //e.SetText(L"Это пример многострочного текста,который автоматически переносится");
+            //e.Draw(hdc, e.X(), e.Y(), e.R()); // рисуем текущую позицию
 
+            for (Figure* f : figures)
+                f->Draw(hdc, f->X(), f->Y(), f->R());
            
             EndPaint(hWnd, &ps);
         }
@@ -183,15 +209,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+    case WM_LBUTTONDOWN:
+    {
+        int mouseX = GET_X_LPARAM(lParam);
+        int mouseY = GET_Y_LPARAM(lParam);
+
+        // простая проверка для круга: расстояние до центра меньше радиуса
+        for (Figure* f : figures)
+        {
+            int dx = mouseX - f->X();
+            int dy = mouseY - f->Y();
+            if (dx * dx + dy * dy <= f->R() * f->R())  // клик внутри круга
+            {
+                selected = f;
+                break;
+            }
+        }
+
+        InvalidateRect(hWnd, NULL, TRUE); // перерисовать окно
+    }
+    break;
     case WM_KEYDOWN:
     {
-
+        if (!selected) break;
         switch (wParam)
         {
-        case VK_LEFT:  e.SetX(e.X() - 5); break;
-        case VK_RIGHT: e.SetX(e.X() + 5); break;
-        case VK_UP:    e.SetY(e.Y() - 5); break;
-        case VK_DOWN:  e.SetY(e.Y() + 5); break;
+        case VK_LEFT:  selected->SetX(selected->X() - 5); break;
+        case VK_RIGHT: selected->SetX(selected->X() + 5); break;
+        case VK_UP:    selected->SetY(selected->Y() - 5); break;
+        case VK_DOWN:  selected->SetY(selected->Y() + 5); break;
         }
 
         InvalidateRect(hWnd, NULL, TRUE);  //  перерисовать окно

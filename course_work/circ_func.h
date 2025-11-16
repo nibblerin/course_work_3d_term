@@ -24,13 +24,15 @@ public:
 		this->r = r;
 
 		SelectObject(hdc, pen);
+		HBRUSH hBrushOld = (HBRUSH)SelectObject(hdc, GetStockObject(NULL_BRUSH));
+
 
 		Ellipse(hdc, x0, y0, x0 + r, y0 + r);
 		RECT rect;
-		rect.left = x0 + 5;
-		rect.top = y0 + 5;
-		rect.right = x0 + r - 5;
-		rect.bottom = y0 + r - 5;
+		rect.left = x0 + 7;
+		rect.top = y0 + 7;
+		rect.right = x0 + r - 7;
+		rect.bottom = y0 + r - 7;
 
 		SetBkMode(hdc, TRANSPARENT); //фон текста - прозрачный
 		SetTextColor(hdc, textColor);
@@ -74,6 +76,14 @@ public:
 	int R() const { return r; }
 	void SetX(int newX) { x0 = newX; }
 	void SetY(int newY) { y0 = newY; }
+
+	bool HitTest(int mx, int my) override
+	{
+		int cx = x0 + r / 2, cy = y0 + r / 2;
+		int dx = mx - cx, dy = my - cy;
+		return dx * dx + dy * dy <= (r / 2) * (r / 2);
+	}
+
 	~ElipseWithText()
 	{
 
